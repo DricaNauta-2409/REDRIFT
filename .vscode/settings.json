@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "MariaJulia - 15h20 Gamedev1.sln"
+    "dotnet.defaultSolution": "REDRIFT.sln"
 }

@@ -1,90 +1,84 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] public Transform orientation;
-    [SerializeField] public Rigidbody rb;
+    [Header("References")] 
+    public Transform orientation;
+    public Rigidbody rb;
     public Transform groundCheck;
-    public LayerMask groundLayer;
-     [SerializeField] private Animator animator;
-
-
-    [Header("Movement settings")]
+    public LayerMask ground;
+    public Animator animator;
+    
+    [Header("Movement Stats")] 
     public float moveSpeed;
     public float jumpForce;
 
-
-    private float horizontalInput;
-    private float verticalInput;
-    private Vector3 movementDirection;
-
-
+    private float _horizontalInput;
+    private float _verticalInput;
+    private Vector3 _moveDirection;
+    
     void Update()
     {
         MyInput();
 
-        if(Input.GetKeyDown(KeyCode.Space) && IsPlayerOnGround())
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             Jump();
         }
+
         PlayerAnimation();
+        
     }
 
-
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         MovePlayer();
     }
 
-    private void MyInput()
+    void MyInput()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
+        _horizontalInput = Input.GetAxis("Horizontal");
+        _verticalInput = Input.GetAxis("Vertical");
     }
 
-    private void Jump()
+    void MovePlayer()
+    {
+        _moveDirection = (orientation.forward * _verticalInput) + (orientation.right * _horizontalInput);
+        
+        rb.velocity = new Vector3(_moveDirection.x  * moveSpeed, rb.velocity.y, _moveDirection.z  * moveSpeed);
+    }
+
+    void Jump()
     {
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
     private void PlayerAnimation()
     {
-       if(IsPlayerOnGround())
+        if (IsGrounded())
         {
-            if(movementDirection.magnitude > 0.1f)
+            if (_moveDirection.magnitude > 0.1f)
             {
                 animator.SetInteger("State", 1);
-
             }
             else
             {
                 animator.SetInteger("State", 0);
             }
-
+            
             if(Input.GetKeyDown(KeyCode.Space))
             {
                 animator.SetInteger("State", 2);
-            } 
+            }
         }
         else
         {
             animator.SetInteger("State", 3);
         }
-       
     }
 
-    private bool IsPlayerOnGround()
+    bool IsGrounded()
     {
-        return Physics.CheckSphere(groundCheck.position, 0.1f, groundLayer);
-    }
-
-    private void MovePlayer()
-    {
-        movementDirection = (orientation.forward * verticalInput) + (orientation.right * horizontalInput);
-       // rb.velocity = new Vector3(movementDirection.x * moveSpeed, rb.velocity.y, movementDirection.z * moveSpeed);
-       rb.MovePosition(transform.position + movementDirection * (moveSpeed * Time.deltaTime));
+        return Physics.OverlapSphere(groundCheck.position, 0.1f, ground).Length > 0;
     }
 }

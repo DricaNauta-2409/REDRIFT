@@ -79,6 +79,6 @@ public class PlayerMovement : MonoBehaviour
 
     bool IsGrounded()
     {
-        return Physics.OverlapSphere(groundCheck.position, 0.1f, ground).Length > 0;
+        return Physics.OverlapSphere(groundCheck.position, 0.5f, ground).Length > 0;
     }
 }
